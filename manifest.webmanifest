@@ -1,0 +1,9 @@
+{
+  "name":"Blasko's Pizza — Food Safety & Diary",
+  "short_name":"Blasko's Diary",
+  "start_url":"./index.html",
+  "display":"standalone",
+  "background_color":"#f6f0e5",
+  "theme_color":"#14584e",
+  "icons":[]
+}
