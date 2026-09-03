@@ -1,10 +1,9 @@
-name: Apply allergen matrix V6
+name: Apply allergen matrix V8
 on:
-  workflow_dispatch:
   push:
     paths:
-      - 'scripts/apply_allergen_matrix_v6.py'
       - '.github/workflows/apply-allergen-matrix-v6.yml'
+      - 'scripts/v8.py'
 permissions:
   contents: write
 jobs:
@@ -12,13 +11,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Apply V6 matrix design
-        run: python scripts/apply_allergen_matrix_v6.py
-      - name: Commit updated app and remove updater
+      - name: Apply V8 styling
+        run: python scripts/v8.py
+      - name: Commit app and remove temporary updater
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add index.html
-          git rm -f scripts/apply_allergen_matrix_v6.py .github/workflows/apply-allergen-matrix-v6.yml
-          git commit -m "Match allergen matrix to approved mockup"
-          git push --force-with-lease origin main
+          git rm -f scripts/v8.py .github/workflows/apply-v8.yml .github/workflows/apply-allergen-matrix-v6.yml
+          git commit -m "Match allergen matrix to reference screenshots"
+          git pull --rebase origin main
+          git push origin HEAD:main
