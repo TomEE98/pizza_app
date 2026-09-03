@@ -1,0 +1,25 @@
+name: Apply Docs photo fix
+
+on:
+  push:
+    paths:
+      - DOCS_PHOTO_FIX_READY
+
+permissions:
+  contents: write
+
+jobs:
+  update-docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Apply Docs photo fix
+        run: python scripts/update_docs.py
+      - name: Commit Docs photo fix
+        run: |
+          rm -f DOCS_PHOTO_FIX_READY
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html DOCS_PHOTO_FIX_READY
+          git commit -m "Fix premises photo storage and deletion" || exit 0
+          git push
