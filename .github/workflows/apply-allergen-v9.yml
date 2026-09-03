@@ -1,0 +1,25 @@
+name: Apply allergen matrix V9
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'scripts/fix_allergen_v9.py'
+      - '.github/workflows/apply-allergen-v9.yml'
+permissions:
+  contents: write
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Apply V9 styling
+        run: python scripts/fix_allergen_v9.py
+      - name: Commit updated app and remove updater
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git rm -f scripts/fix_allergen_v9.py .github/workflows/apply-allergen-v9.yml
+          git commit -m "Fix compact allergen headers and pizza rows"
+          git pull --rebase origin main
+          git push origin HEAD:main
