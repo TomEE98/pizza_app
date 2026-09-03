@@ -1,0 +1,25 @@
+name: Apply Docs premises update
+
+on:
+  push:
+    paths:
+      - DOCS_PREMISES_READY
+
+permissions:
+  contents: write
+
+jobs:
+  update-docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Apply Docs update
+        run: python scripts/update_docs.py
+      - name: Commit Docs update
+        run: |
+          rm -f DOCS_PREMISES_READY
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html DOCS_PREMISES_READY
+          git commit -m "Add premises and dated site photos to Docs" || exit 0
+          git push
