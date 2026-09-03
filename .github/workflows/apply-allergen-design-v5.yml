@@ -1,0 +1,24 @@
+name: Apply allergen design V5
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'scripts/restyle_allergen_matrix.py'
+permissions:
+  contents: write
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Apply design update
+        run: python scripts/restyle_allergen_matrix.py
+      - name: Commit and remove temporary updater
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git rm -f scripts/restyle_allergen_matrix.py .github/workflows/apply-allergen-design-v5.yml
+          git diff --cached --quiet && exit 0
+          git commit -m "Polish allergen matrix design"
+          git push
