@@ -1,3 +1,4 @@
+# Trigger the one-time allergen matrix build.
 from pathlib import Path
 import re
 
