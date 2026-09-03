@@ -1,0 +1,61 @@
+name: Redesign chilled storage diary form
+
+on:
+  push:
+    paths:
+      - CHILLED_STORAGE_REDESIGN_READY
+
+permissions:
+  contents: write
+
+jobs:
+  redesign:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Redesign chilled storage form
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          p=Path('index.html')
+          s=p.read_text(encoding='utf-8')
+
+          css='''\n/* Chilled storage form redesign */\n.temperature-entry .diary-meta{display:none}\n.chilled-form{padding:0;overflow:hidden}\n.chilled-head{padding:22px 18px;background:var(--mint);border-bottom:1px solid var(--line);display:flex;align-items:center;gap:12px}\n.chilled-head .chilled-icon{font-size:27px;line-height:1}\n.chilled-head h3{font-family:Inter,system-ui,sans-serif;font-size:27px;font-weight:900;margin:0;color:var(--green)}\n.chilled-body{padding:20px 16px 4px}\n.chilled-section-title{font-size:15px;font-weight:900;color:var(--green);margin:0 0 10px}\n.chilled-field-label{font-size:12px;font-weight:800;display:block;margin:0 0 5px}\n.chilled-datetime{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px}\n.chilled-datetime input{margin:0;height:54px;border-radius:15px;padding:11px 12px}\n.chilled-field{margin-bottom:18px}\n.chilled-field input,.chilled-field select,.chilled-field textarea{margin:0;min-height:54px;border-radius:15px;padding:13px}\n.chilled-field textarea{min-height:100px}\n.chilled-add-fridge{width:100%;padding:14px 16px;border-radius:15px;background:var(--mint);color:var(--green);font-weight:800;text-align:left;margin-top:10px}\n.chilled-divider{height:1px;background:var(--line);margin:6px 0 22px}\n.chilled-temp{position:relative}\n.chilled-temp input{padding-right:54px;font-size:17px}\n.chilled-temp .unit{position:absolute;right:15px;top:17px;font-weight:900;color:var(--green)}\n.chilled-help{font-size:12px;color:var(--muted);line-height:1.4;margin:8px 0 0}\n.chilled-save{margin:4px 0 18px}\n@media(max-width:390px){.chilled-head h3{font-size:24px}.chilled-body{padding-left:14px;padding-right:14px}}\n'''
+          marker='/* Chilled storage form redesign */'
+          if marker not in s:
+              s=s.replace('</style>',css+'</style>',1)
+
+          pattern=r"else if\(type==='Temperature check'\)\{const opts=.*?\nelse if\(type==='LPG bottle levels'\)"
+          replacement="""else if(type==='Temperature check'){const opts=db.fridges.length?db.fridges.map(f=>`<option value=\"${f.id}\">${f.name}</option>`).join(''):'<option value=\"\">No fridges saved yet</option>';const n=nowEntry();h=`<div class=\"card chilled-form\"><div class=\"chilled-head\"><span class=\"chilled-icon\">❄</span><h3>Chilled storage</h3></div><div class=\"chilled-body\"><div class=\"chilled-section-title\">Date & time</div><div class=\"chilled-datetime\"><div><label class=\"chilled-field-label\">Date</label><input id=\"fDate\" type=\"date\" value=\"${n.date}\"></div><div><label class=\"chilled-field-label\">Time</label><input id=\"fTime\" type=\"time\" value=\"${n.time}\"></div></div><div class=\"chilled-field\"><label>Equipment</label><select id=\"fLocation\" ${db.fridges.length?'':'disabled'}><option value=\"\">Select fridge</option>${opts}</select>${db.fridges.length?'':'<button type=\"button\" class=\"chilled-add-fridge\" onclick=\"go(\\'system\\')\">＋ &nbsp; Add a fridge in System</button>'}</div><div class=\"chilled-divider\"></div><div class=\"chilled-field chilled-temp\"><label>Temperature reading</label><input id=\"fTemp\" type=\"number\" step=\"0.1\" placeholder=\"e.g. 3.8\"><span class=\"unit\">°C</span><p class=\"chilled-help\">Enter the actual reading from your manual food thermometer. The app will flag readings above your configured limit.</p></div><div class=\"chilled-field\"><label>Checked by</label><input id=\"fBy\" placeholder=\"Name\"></div><div class=\"chilled-field\"><label>Notes</label><textarea id=\"fNotes\" placeholder=\"Anything else to record...\"></textarea></div></div></div>`}
+else if(type==='LPG bottle levels')"""
+          ns,repl=re.subn(pattern,replacement,s,count=1,flags=re.S)
+          if repl!=1:
+              raise SystemExit('Temperature check block not found')
+          s=ns
+
+          old="function saveRecord(){const type=document.querySelector('.add-tab.active')?.dataset.type||'General note';const date=document.getElementById('entryDate').value||today();const time=document.getElementById('entryTime').value||new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});"
+          new="function saveRecord(){const type=document.querySelector('.add-tab.active')?.dataset.type||'General note';if(type==='Temperature check'){const fd=document.getElementById('fDate'),ft=document.getElementById('fTime');if(fd)document.getElementById('entryDate').value=fd.value;if(ft)document.getElementById('entryTime').value=ft.value}const date=document.getElementById('entryDate').value||today();const time=document.getElementById('entryTime').value||new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});"
+          if old not in s:
+              raise SystemExit('saveRecord start not found')
+          s=s.replace(old,new,1)
+
+          old_go="function go(id){document.querySelectorAll('.page').forEach(p=>p.classList.toggle('active',p.id===id));document.querySelectorAll('.nav').forEach(n=>n.classList.toggle('active',n.dataset.page===id));document.getElementById('appHeader')?.classList.toggle('today-header',id==='today');if(id==='bookings')renderBookings();if(id==='today')renderToday();if(id==='stock')renderStock();window.scrollTo({top:0,behavior:'smooth'})}"
+          new_go="function go(id){document.querySelectorAll('.page').forEach(p=>p.classList.toggle('active',p.id===id));document.querySelectorAll('.nav').forEach(n=>n.classList.toggle('active',n.dataset.page===id));document.getElementById('appHeader')?.classList.toggle('today-header',id==='today');if(id==='bookings')renderBookings();if(id==='today')renderToday();if(id==='stock')renderStock();window.scrollTo({top:0,behavior:'smooth'})}"
+          if old_go not in s: raise SystemExit('go function not found')
+
+          old_set="document.getElementById('recordFields').innerHTML=h;const n=nowEntry();if(document.getElementById('fDeliveryDate'))document.getElementById('fDeliveryDate').value=n.date}"
+          new_set="document.getElementById('recordFields').innerHTML=h;document.getElementById('add')?.classList.toggle('temperature-entry',type==='Temperature check');const n=nowEntry();if(document.getElementById('fDeliveryDate'))document.getElementById('fDeliveryDate').value=n.date}"
+          if old_set not in s: raise SystemExit('renderRecordFields end not found')
+          s=s.replace(old_set,new_set,1)
+
+          p.write_text(s,encoding='utf-8')
+          PY
+      - name: Commit redesign
+        run: |
+          rm -f CHILLED_STORAGE_REDESIGN_READY
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html CHILLED_STORAGE_REDESIGN_READY
+          git commit -m "Redesign chilled storage diary form" || exit 0
+          git push
