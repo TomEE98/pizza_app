@@ -173,7 +173,7 @@ header.today-header .brand small{opacity:.72}
 </main>
 
 <div class="nav-wrap"><nav class="bottom">
-<button class="nav active" data-page="today"><b>✓</b>Today</button><button class="nav" data-page="records"><b>◷</b>Records</button><button class="nav" data-page="add"><b>＋</b>Add</button><button class="nav" data-page="bookings"><b>▣</b>Bookings</button><button class="nav" data-page="docs"><b>▤</b>Docs</button><button class="nav" data-page="staff"><b>♙</b>Staff</button><button class="nav" data-page="system"><b>⚙</b>System</button>
+<button class="nav active" data-page="today"><b>✓</b>Today</button><button class="nav" data-page="records"><b>◷</b>Records</button><button class="nav" data-page="add"><b>＋</b>Add</button><button class="nav" data-page="bookings"><b>▣</b>Bookings</button><button class="nav" data-page="stock"><b>▦</b>Stock</button><button class="nav" data-page="docs"><b>▤</b>Docs</button><button class="nav" data-page="staff"><b>♙</b>Staff</button><button class="nav" data-page="system"><b>⚙</b>System</button>
 </nav></div><div class="toast" id="toast"></div>
 <div class="modal" id="modal"><div class="sheet"><button class="close" onclick="closeModal()">Close</button><div id="modalContent"></div></div></div>
 </div>
@@ -186,7 +186,7 @@ function persist(){localStorage.setItem(KEY,JSON.stringify(db));renderAll()}
 function today(){return localToday()}
 function fmtDate(d){if(!d)return '—';return new Date(d+'T12:00:00').toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'})}
 function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.style.display='block';clearTimeout(window._toast);window._toast=setTimeout(()=>t.style.display='none',1800)}
-function go(id){document.querySelectorAll('.page').forEach(p=>p.classList.toggle('active',p.id===id));document.querySelectorAll('.nav').forEach(n=>n.classList.toggle('active',n.dataset.page===id));document.getElementById('appHeader')?.classList.toggle('today-header',id==='today');if(id==='bookings')renderBookings();if(id==='today')renderToday();window.scrollTo({top:0,behavior:'smooth'})}
+function go(id){document.querySelectorAll('.page').forEach(p=>p.classList.toggle('active',p.id===id));document.querySelectorAll('.nav').forEach(n=>n.classList.toggle('active',n.dataset.page===id));document.getElementById('appHeader')?.classList.toggle('today-header',id==='today');if(id==='bookings')renderBookings();if(id==='today')renderToday();if(id==='stock')renderStock();window.scrollTo({top:0,behavior:'smooth'})}
 document.querySelectorAll('.nav').forEach(b=>b.addEventListener('click',()=>go(b.dataset.page)));
 function setRecordType(v){document.getElementById('ingredientList').addEventListener('click',e=>{const del=e.target.closest('[data-delete-ingredient]');if(del){deleteIngredient(Number(del.dataset.deleteIngredient));return}const edit=e.target.closest('[data-edit-ingredient]');if(edit)editIngredient(Number(edit.dataset.editIngredient))});document.querySelectorAll('.add-tab').forEach(b=>b.classList.toggle('active',b.dataset.type===v));renderRecordFields(v);go('add')}
 function nowEntry(){const d=new Date();return {date:d.toISOString().slice(0,10),time:d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})}}
