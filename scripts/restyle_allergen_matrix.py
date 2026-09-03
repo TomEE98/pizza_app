@@ -1,5 +1,6 @@
 from pathlib import Path
 
+# Design V5 updater
 p = Path('index.html')
 s = p.read_text(encoding='utf-8')
 
