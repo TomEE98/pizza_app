@@ -21,4 +21,4 @@ jobs:
           git add index.html
           git rm -f scripts/apply_allergen_matrix_v6.py .github/workflows/apply-allergen-matrix-v6.yml
           git commit -m "Match allergen matrix to approved mockup"
-          git push
+          git push --force-with-lease origin main
