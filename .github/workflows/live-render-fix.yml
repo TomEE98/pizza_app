@@ -1,0 +1,25 @@
+name: Apply live render fix
+
+on:
+  push:
+    paths:
+      - LIVE_RENDER_FIX_READY
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Apply live render fix
+        run: python scripts/fix_live_render.py
+      - name: Commit fix
+        run: |
+          rm -f LIVE_RENDER_FIX_READY
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html LIVE_RENDER_FIX_READY
+          git commit -m "Fix immediate UI refresh after saves" || exit 0
+          git push
