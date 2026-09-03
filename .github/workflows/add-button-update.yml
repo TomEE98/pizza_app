@@ -1,0 +1,35 @@
+name: Adjust Blasko's Pizza Add button
+
+on:
+  push:
+    paths:
+      - ADD_BUTTON_READY
+
+permissions:
+  contents: write
+
+jobs:
+  adjust-add:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Adjust Add button layout
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('index.html')
+          s=p.read_text(encoding='utf-8')
+          old=".nav[data-page=add]{background:var(--green);color:white;width:54px;height:54px;justify-self:center;border-radius:16px;padding:0;gap:1px}.nav[data-page=add] b{font-size:30px;height:30px}.nav[data-page=add].active{background:var(--green);color:white}"
+          new=".nav[data-page=add]{background:transparent;color:#71807d;width:auto;height:64px;justify-self:center;border-radius:22px;padding:4px 2px;gap:4px}.nav[data-page=add] b{width:54px;height:54px;border-radius:16px;background:var(--green);color:white;font-size:30px}.nav[data-page=add].active{background:transparent;color:#71807d}"
+          if old not in s: raise SystemExit('Expected Add button CSS not found')
+          s=s.replace(old,new,1)
+          p.write_text(s,encoding='utf-8')
+          PY
+      - name: Commit Add button adjustment
+        run: |
+          rm -f ADD_BUTTON_READY
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html ADD_BUTTON_READY
+          git commit -m "Refine Add button navigation styling" || exit 0
+          git push
