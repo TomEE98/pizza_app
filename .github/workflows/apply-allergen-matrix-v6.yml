@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - 'scripts/apply_allergen_matrix_v6.py'
+      - '.github/workflows/apply-allergen-matrix-v6.yml'
 permissions:
   contents: write
 jobs:
