@@ -1,0 +1,47 @@
+name: Update Blasko's Pizza navigation
+
+on:
+  push:
+    paths:
+      - NAV_READY
+
+permissions:
+  contents: write
+
+jobs:
+  update-nav:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Update navigation styling
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('index.html')
+          s = p.read_text(encoding='utf-8')
+
+          old_css = ".nav-wrap{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:min(520px,100%);z-index:10;padding:7px 6px calc(7px + env(safe-area-inset-bottom));background:rgba(255,253,248,.98);border-top:1px solid var(--line)}.bottom{display:grid;grid-template-columns:repeat(7,1fr);gap:2px}.nav{background:none;color:#75827f;font-size:9px;padding:7px 1px;border-radius:13px;min-width:0}.nav b{display:block;font-size:18px;line-height:21px}.nav.active{background:var(--mint);color:var(--green)}"
+          new_css = ".nav-wrap{position:fixed;bottom:max(10px,env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);width:min(500px,calc(100% - 20px));z-index:10;padding:9px 8px;background:rgba(255,255,255,.98);border:1px solid #edf0ee;border-radius:30px;box-shadow:0 10px 30px rgba(20,45,40,.12),0 2px 8px rgba(20,45,40,.06)}.bottom{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:3px;align-items:center}.nav{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;height:64px;background:transparent;color:#71807d;font-size:11px;font-weight:500;padding:4px 2px;border-radius:22px;min-width:0;white-space:nowrap}.nav b{display:flex;align-items:center;justify-content:center;width:30px;height:30px;font-size:25px;line-height:1;font-weight:400}.nav.active{background:var(--mint);color:var(--green)}.nav[data-page=add]{background:var(--green);color:white;width:54px;height:54px;justify-self:center;border-radius:16px;padding:0;gap:1px}.nav[data-page=add] b{font-size:30px;height:30px}.nav[data-page=add].active{background:var(--green);color:white}.nav[data-page=stock].active{background:#e4f1ee;color:var(--green)}"
+
+          old_nav = '<button class="nav active" data-page="today"><b>✓</b>Today</button><button class="nav" data-page="records"><b>◷</b>Records</button><button class="nav" data-page="add"><b>＋</b>Add</button><button class="nav" data-page="bookings"><b>▣</b>Bookings</button><button class="nav" data-page="stock"><b>▦</b>Stock</button><button class="nav" data-page="docs"><b>▤</b>Docs</button><button class="nav" data-page="staff"><b>♙</b>Staff</button><button class="nav" data-page="system"><b>⚙</b>System</button>'
+          new_nav = '<button class="nav active" data-page="today"><b>▣</b>Today</button><button class="nav" data-page="records"><b>◴</b>Records</button><button class="nav" data-page="add"><b>＋</b>Add</button><button class="nav" data-page="bookings"><b>▦</b>Bookings</button><button class="nav" data-page="stock"><b>◇</b>Stock</button><button class="nav" data-page="docs"><b>▤</b>Docs</button><button class="nav" data-page="staff"><b>♧</b>Staff</button><button class="nav" data-page="system"><b>☷</b>System</button>'
+
+          if old_css not in s:
+              raise SystemExit('Expected v11 navigation CSS was not found; aborting.')
+          if old_nav not in s:
+              raise SystemExit('Expected v11 navigation markup was not found; aborting.')
+          s = s.replace(old_css, new_css, 1)
+          s = s.replace(old_nav, new_nav, 1)
+          p.write_text(s, encoding='utf-8')
+          PY
+
+      - name: Commit navigation update
+        run: |
+          rm -f NAV_READY
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html NAV_READY
+          git commit -m "Update navigation bar design" || exit 0
+          git push
