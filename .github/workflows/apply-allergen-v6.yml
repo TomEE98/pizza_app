@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - 'scripts/apply_allergen_matrix_v6.py'
+      - 'scripts/trigger-allergen-v6'
 permissions:
   contents: write
 jobs:
@@ -18,6 +19,6 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add index.html
-          git rm -f scripts/apply_allergen_matrix_v6.py .github/workflows/apply-allergen-v6.yml
+          git rm -f scripts/apply_allergen_matrix_v6.py .github/workflows/apply-allergen-v6.yml scripts/trigger-allergen-v6
           git commit -m "Refine allergen matrix to match mockup"
           git push
