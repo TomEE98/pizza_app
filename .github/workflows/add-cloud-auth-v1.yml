@@ -6,6 +6,7 @@ on:
     paths:
       - 'scripts/add-cloud-auth-v1.py'
       - 'scripts/cloud-integration.js'
+      - 'supabase-config.js'
 
 permissions:
   contents: write
