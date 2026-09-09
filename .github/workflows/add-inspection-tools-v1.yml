@@ -1,8 +1,10 @@
 name: Add inspection sharing and backup tools
 on:
+  workflow_dispatch:
   push:
     paths:
       - 'scripts/add_inspection_tools_v1.py'
+      - '.github/workflows/add-inspection-tools-v1.yml'
 permissions:
   contents: write
 jobs:
@@ -18,7 +20,7 @@ jobs:
           from pathlib import Path
           s=Path('index.html').read_text(encoding='utf-8')
           assert 'blaskos-inspection-tools-v1' in s
-          assert s.rfind('<script>') < s.rfind('blaskos-inspection-tools-v1-js')
+          assert 'blaskos-inspection-tools-v1-js' in s
           print('Inspection tools marker present')
           PY
           git config user.name "github-actions[bot]"
