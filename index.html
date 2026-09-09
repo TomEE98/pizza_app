@@ -1057,4 +1057,22 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
   window.addEventListener('load',()=>setTimeout(refreshClosingFields,0));
 })();
 </script>
+
+<script id="blaskos-today-initial-render-fix">
+(function(){
+  'use strict';
+  function renderTodayImmediately(){
+    try{
+      if(typeof window.renderToday==='function') window.renderToday();
+    }catch(e){
+      console.error('Today initial render error',e);
+    }
+  }
+  // Run synchronously: this script is placed immediately before the final body
+  // tag, after the main application functions have been defined.
+  renderTodayImmediately();
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',renderTodayImmediately,{once:true});
+  window.addEventListener('pageshow',renderTodayImmediately);
+})();
+</script>
 </body></html>
