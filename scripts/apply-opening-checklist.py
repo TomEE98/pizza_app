@@ -1,3 +1,4 @@
+# trigger opening checklist v2
 from pathlib import Path
 p=Path('index.html'); s=p.read_text(encoding='utf-8')
 if 'blaskos-opening-checklist-v1' in s: raise SystemExit('already applied')
@@ -51,4 +52,3 @@ block=r'''<style id="blaskos-opening-checklist-v1">
 pos=s.rfind('</body>')
 if pos<0: raise SystemExit('closing body not found')
 p.write_text(s[:pos]+block+s[pos:],encoding='utf-8')
-print('Opening checklist applied')
