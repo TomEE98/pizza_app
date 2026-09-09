@@ -3,6 +3,7 @@ on:
   push:
     paths:
       - 'scripts/apply-closing-checklist.py'
+      - '.github/workflows/apply-closing-checklist.yml'
   workflow_dispatch:
 permissions:
   contents: write
