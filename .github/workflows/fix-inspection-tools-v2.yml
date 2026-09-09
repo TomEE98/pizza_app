@@ -1,5 +1,6 @@
 name: Fix inspection tools syntax V2
 on:
+  workflow_dispatch:
   push:
     paths:
       - 'scripts/fix_inspection_tools_syntax_v2.py'
