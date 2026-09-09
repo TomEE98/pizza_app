@@ -1,0 +1,30 @@
+name: Add inspection sharing and backup tools
+on:
+  push:
+    paths:
+      - 'scripts/add_inspection_tools_v1.py'
+permissions:
+  contents: write
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Apply inspection tools
+        run: python scripts/add_inspection_tools_v1.py
+      - name: Validate HTML and remove updater
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          s=Path('index.html').read_text(encoding='utf-8')
+          assert 'blaskos-inspection-tools-v1' in s
+          assert s.rfind('<script>') < s.rfind('blaskos-inspection-tools-v1-js')
+          print('Inspection tools marker present')
+          PY
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git rm -f scripts/add_inspection_tools_v1.py .github/workflows/add-inspection-tools-v1.yml
+          git commit -m "Add inspection sharing and backup tools"
+          git pull --rebase origin main
+          git push origin HEAD:main
