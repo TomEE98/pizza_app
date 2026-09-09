@@ -1,0 +1,35 @@
+name: Fix inspection tools syntax V2
+on:
+  push:
+    paths:
+      - 'scripts/fix_inspection_tools_syntax_v2.py'
+      - '.github/workflows/fix-inspection-tools-v2.yml'
+permissions:
+  contents: write
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Apply syntax fix
+        run: python scripts/fix_inspection_tools_syntax_v2.py
+      - name: Validate inserted JavaScript
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          s=Path('index.html').read_text(encoding='utf-8')
+          a=s.find('<script id="blaskos-inspection-tools-v1-js">')
+          b=s.find('</script>',a)
+          assert a>=0 and b>a
+          Path('/tmp/tools.js').write_text(s[a+len('<script id="blaskos-inspection-tools-v1-js">'):b],encoding='utf-8')
+          PY
+          node --check /tmp/tools.js
+      - name: Commit fix and remove updater
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git rm -f scripts/fix_inspection_tools_syntax_v2.py .github/workflows/fix-inspection-tools-v2.yml
+          git commit -m "Fix inspection tools pack syntax"
+          git pull --rebase origin main
+          git push origin HEAD:main
