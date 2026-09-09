@@ -1,0 +1,23 @@
+name: Apply prep and cleaning checklist
+on:
+  push:
+    paths:
+      - 'scripts/apply-prep-checklist.py'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Apply checklist
+        run: python scripts/apply-prep-checklist.py
+      - name: Commit update and remove updater
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git rm -f scripts/apply-prep-checklist.py .github/workflows/apply-prep-checklist.yml
+          git commit -m "Replace prep checks with combined cleaning checklist"
+          git push
